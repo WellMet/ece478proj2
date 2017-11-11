@@ -11,7 +11,7 @@ def read_data(data):
                                        'prefix_length': 'None'}
             if partitions[2] == '-1':
                 data[partitions[0]]['as_links']['p2c'].append(partitions[1])
-            elif partitions[2] == '0' and partitions[1] != partitions[0]:
+            elif partitions[2] == '0':
                 data[partitions[0]]['as_links']['p2p'].append(partitions[1])
     f.close()
     input_data_file = "routeviews-rv2-20171105-1200.txt"
@@ -81,8 +81,21 @@ def infer_t1(data):
     return S
 
 
+def calc_cone(all_data):
+    def dfs(data, cur_node, cone_size):
+        if cur_node in data:
+            for child in data[cur_node]['as_links']['p2c']:
+                dfs(data, child, cone_size)
+        return cone_size + 1
+    for a_s in all_data:
+        total_cone = 0
+        total_cone = dfs(all_data, a_s, total_cone)
+        all_data[a_s]['cone_size'] = total_cone
+
+print("hello")
 all_data = {}
 read_data(all_data)
 calc_degree(all_data)
 t1_as = infer_t1(all_data)
+calc_cone(all_data)
 print_data(all_data, t1_as)
